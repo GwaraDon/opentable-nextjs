@@ -2,7 +2,7 @@ import { Inter } from "@next/font/google";
 import Header from "./components/Header";
 import Navbar from "./components/Navbar";
 import RestaurantCard from "./components/RestaurantCard";
-import { PrismaClient, Cuisine, Location, PRICE } from "@prisma/client";
+import { PrismaClient, Cuisine, Location, PRICE, Review } from "@prisma/client";
 const inter = Inter({ subsets: ["latin"] });
 export interface RestaurantCardType {
   id: number;
@@ -12,8 +12,12 @@ export interface RestaurantCardType {
   cuisine: Cuisine;
   location: Location;
   price: PRICE;
+  reviews: Review[];
 }
 const prisma = new PrismaClient();
+// const fetchRestaurantReviews = async () => {
+//   return prisma.review.findMany();
+// };
 const fetchRestaurants = async () => {
   const restaurants = await prisma.restaurant.findMany({
     select: {
@@ -24,12 +28,15 @@ const fetchRestaurants = async () => {
       cuisine: true,
       location: true,
       price: true,
+      reviews: true,
     },
   });
   return restaurants;
 };
 export default async function Home() {
   const restaurants = await fetchRestaurants();
+  // const reviews = await fetchRestaurantReviews();
+  // console.log(reviews);
   return (
     <main className="bg-gray-100 min-h-screen w-screen">
       <main className="max-w-screen-2xl m-auto bg-white">
