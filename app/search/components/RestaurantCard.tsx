@@ -1,5 +1,6 @@
-import { PRICE, Cuisine, Location } from "@prisma/client";
+import { PRICE, Cuisine, Location, Review } from "@prisma/client";
 import Link from "next/link";
+import Stars from "../../components/Stars";
 interface Restaurant {
   name: string;
   main_image: string;
@@ -7,6 +8,7 @@ interface Restaurant {
   cuisine: Cuisine;
   location: Location;
   slug: string;
+  reviews: Review[];
 }
 export default function RestaurantCard({
   restaurant,
@@ -14,7 +16,7 @@ export default function RestaurantCard({
   restaurant: Restaurant;
 }) {
   return (
-    <div className="border-b flex pb-5">
+    <div className="border-b flex pb-5 mb-5">
       <img
         src="https://images.otstatic.com/prod1/49153814/2/medium.jpg"
         alt=""
@@ -23,8 +25,12 @@ export default function RestaurantCard({
       <div className="pl-5">
         <h2 className="text-3xl">{restaurant.name}</h2>
         <div className="flex items-start">
-          <div className="flex mb-2">*****</div>
-          <p className="ml-2 text-sm">Awesome</p>
+          <div className="flex mb-2">
+            <Stars reviews={restaurant.reviews} />
+          </div>
+          <p className="ml-2 text-sm">
+            {restaurant.reviews.map((l) => l.rating)}
+          </p>
         </div>
         <div className="mb-9">
           <div className="font-light flex text-reg">

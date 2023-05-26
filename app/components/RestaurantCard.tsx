@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { RestaurantCardType } from "../page";
+import Stars from "./Stars";
 
 interface Props {
   restaurant: RestaurantCardType;
@@ -15,7 +16,9 @@ export default function RestaurantCard({ restaurant }: Props) {
           <Link href={`restaurant/${restaurant.slug}`}>{restaurant.name}</Link>
         </h3>
         <div className="flex items-start">
-          <div className="flex mb-2">*****</div>
+          <div className="flex mb-2">
+            <Stars reviews={restaurant.reviews} />
+          </div>
           <p className="ml-2">
             <span className="mr-2 font-medium">
               {restaurant.reviews.length > 0 ? restaurant.reviews.length : "No"}

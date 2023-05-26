@@ -1,6 +1,8 @@
 import RestaurantNav from "./components/RestaurantNav";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Review } from "@prisma/client";
 import Image from "next/image";
+import { avgRating } from "../../../utils/calculateAverageRating";
+import Stars from "../../components/Stars";
 interface Restaurant {
   id: number;
   name: string;
@@ -8,6 +10,7 @@ interface Restaurant {
   description: string;
   main_image: string;
   images: string[];
+  reviews: Review[];
 }
 const prisma = new PrismaClient();
 const fetchRestaurantBySlug = async (slug: string): Promise<Restaurant> => {
@@ -22,6 +25,7 @@ const fetchRestaurantBySlug = async (slug: string): Promise<Restaurant> => {
       description: true,
       slug: true,
       main_image: true,
+      reviews: true,
     },
   });
   if (!restaurant) {
@@ -48,11 +52,13 @@ export default async function RestuarantDetail({
         {/* TITLE */} {/* RATING */}
         <div className="flex items-end">
           <div className="ratings mt-2 flex items-center">
-            <p>*****</p>
-            <p className="text-reg ml-3">4.9</p>
+            <Stars reviews={restaurant.reviews} />
+            <p className="text-reg ml-3">
+              {avgRating(restaurant.reviews).toFixed(2)}
+            </p>
           </div>
           <div>
-            <p className="text-reg ml-4"> Reviews</p>
+            <p className="text-reg ml-4">{restaurant.reviews.length} Reviews</p>
           </div>
         </div>
         {/* RATING */} {/* DESCRIPTION */}
@@ -76,32 +82,37 @@ export default async function RestuarantDetail({
         {/* IMAGES */} {/* REVIEWS */}
         <div>
           <h1 className="font-bold text-3xl mt-10 mb-7 borber-b pb-5">
-            What 100 people are saying
+            What {restaurant.reviews.length} people are saying
           </h1>
           <div>
             {/* REVIEW CARD */}
-            <div className="border-b pb-7 mb-7">
-              <div className="flex">
-                <div className="w-1/6 flex flex-col items-center">
-                  <div className="rounded-full bg-blue-400 w-16 h-16 flex items-center justify-center">
-                    <h2 className="text-white text-2xl">MJ</h2>
-                  </div>
-                  <p className="text-center">Micheal Jordan</p>
-                </div>
-                <div className="ml-10 w-5/6">
-                  <div className="flex items-center">
-                    <div className="flex mr-5">*****</div>
-                  </div>
-                  <div className="mt-5">
-                    <p className="text-lg font-light">
-                      Laurie was on top of everything! Slow night due to the
-                      snow storm so it worked in our favor to have more one on
-                      one with the staff. Delicious and well worth the money.
+            {restaurant.reviews.map((review) => (
+              <div className="border-b pb-7 mb-7" key={review.id}>
+                <div className="flex">
+                  <div className="w-1/6 flex flex-col items-center">
+                    <div className="rounded-full bg-blue-400 w-16 h-16 flex items-center justify-center">
+                      <h2 className="text-white text-2xl">
+                        {review.first_name[0]} {review.last_name[0]}
+                      </h2>
+                    </div>
+                    <p className="text-center">
+                      {review.first_name} {review.last_name}
                     </p>
+                  </div>
+                  <div className="ml-10 w-5/6">
+                    <div className="flex items-center">
+                      <div className="flex mr-5">
+                        <Stars reviews={restaurant.reviews} />
+                        {avgRating(restaurant.reviews).toFixed(2)}
+                      </div>
+                    </div>
+                    <div className="mt-5">
+                      <p className="text-lg font-light">{review.text}</p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            ))}
             {/* REVIEW CARD */}
           </div>
         </div>

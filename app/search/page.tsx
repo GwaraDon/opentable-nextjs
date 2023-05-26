@@ -12,12 +12,14 @@ export interface SearchParams {
 }
 const fetchRestaurantByLocation = (searchParams: SearchParams) => {
   const select = {
+    id: true,
     name: true,
     main_image: true,
     price: true,
     cuisine: true,
     location: true,
     slug: true,
+    reviews: true,
   };
   const where: any = {};
 
@@ -86,7 +88,7 @@ async function Search({ searchParams }: { searchParams: SearchParams }) {
             {/* RESAURANT CAR */}
             {restaurants?.length ? (
               restaurants.map((restaurant) => (
-                <RestaurantCard restaurant={restaurant} />
+                <RestaurantCard restaurant={restaurant} key={restaurant.id} />
               ))
             ) : (
               <p>No restaurant found</p>
