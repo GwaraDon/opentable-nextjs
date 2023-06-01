@@ -3,6 +3,7 @@ import { PrismaClient, Review } from "@prisma/client";
 import Image from "next/image";
 import { avgRating } from "../../../utils/calculateAverageRating";
 import Stars from "../../components/Stars";
+import { notFound } from "next/navigation";
 interface Restaurant {
   id: number;
   name: string;
@@ -29,7 +30,8 @@ const fetchRestaurantBySlug = async (slug: string): Promise<Restaurant> => {
     },
   });
   if (!restaurant) {
-    throw new Error("Restaurant not found");
+    // throw new Error("Restaurant not found");
+    notFound();
   }
   return restaurant;
 };
