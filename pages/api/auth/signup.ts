@@ -1,7 +1,10 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import validator from "validator";
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcrypt";
+import * as jose from "jose";
 
+const prisma = new PrismaClient();
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -45,7 +48,6 @@ export default async function handler(
     if (errors.length) {
       return res.status(400).json({ errorMessage: errors[0] });
     }
-    const prisma = new PrismaClient();
     const userEmail = await prisma.user.findUnique({
       where: {
         email,
@@ -54,6 +56,23 @@ export default async function handler(
     if (userEmail) {
       return res.status(400).json({ errorMessage: "Email already exists" });
     }
-    res.status(200).json({ hello: "world" });
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await prisma.user.create({
+      data: {
+        first_name: firstName,
+        last_name: lastName,
+        email,
+        password: hashedPassword,
+        city,
+        phone: phoneNumber,
+      },
+    });
+    const token = await new jose.SignJWT({ email: user.email })
+      .setProtectedHeader({ alg: "HS256" })
+      .setExpirationTime("1h")
+      .sign(new TextEncoder().encode(process.env.JWT_SECRET));
+    res.status(200).json({ hello: token });
   }
+
+  return res.status(400).json({ message: "Bad request" });
 }
